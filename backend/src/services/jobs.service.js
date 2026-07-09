@@ -33,3 +33,50 @@ export async function getJobs() {
 
   return result.rows;
 }
+
+export async function createJobs(jobs) {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const inserted = [];
+
+    for (const job of jobs) {
+      const { title, company, location, url, description, source, job_hash } =
+        job;
+
+      const result = await client.query(
+        `
+        INSERT INTO jobs
+        (
+          title,
+          company,
+          location,
+          url,
+          description,
+          source,
+          job_hash
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7)
+        RETURNING *
+        `,
+        [title, company, location, url, description, source, job_hash],
+      );
+
+      inserted.push(result.rows[0]);
+    }
+
+    await client.query("COMMIT");
+
+    return {
+      success: true,
+      inserted: inserted.length,
+    };
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+}

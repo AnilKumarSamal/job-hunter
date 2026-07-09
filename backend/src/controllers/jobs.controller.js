@@ -27,3 +27,17 @@ export async function getJobs(req, res) {
     });
   }
 }
+
+export async function createJobs(req, res) {
+  try {
+    const jobs = await jobsService.createJobs(req.body);
+
+    return res.status(201).json(jobs);
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+}
