@@ -1,7 +1,16 @@
 import pool from "../config/database.js";
 
 export async function createJob(job) {
-  const { title, company, location, url, description, source, job_hash } = job;
+  const {
+    title,
+    company,
+    location,
+    url,
+    description,
+    source,
+    ai_score,
+    job_hash,
+  } = job;
 
   const result = await pool.query(
     `
@@ -13,12 +22,13 @@ export async function createJob(job) {
       url,
       description,
       source,
+      ai_score,
       job_hash
     )
-    VALUES ($1,$2,$3,$4,$5,$6,$7)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
     RETURNING *
     `,
-    [title, company, location, url, description, source, job_hash],
+    [title, company, location, url, description, source, ai_score, job_hash],
   );
 
   return result.rows[0];
